@@ -174,13 +174,13 @@ environment is not set.  Should be expanded before use.")
   (let ((line (thing-at-point 'line)))
     (car (split-string line " "))))
 
-(defun worklog-open (&optional id)
-  "Open the worklog for ID, creating it if it does not exist."
+(defun worklog-open (&optional id create-if-needed)
+  "Open the worklog for ID, creating it if CREATE-IF-NEEDED."
   (interactive)
   (let ((real-id
          (if id id
            (worklog--read-id))))
-    (if (worklog-p real-id)
+    (if (or create-if-needed (worklog-p real-id))
         (find-file (worklog--storage-path real-id))
       (message "invalid board: %s" id))))
 
@@ -234,7 +234,7 @@ environment is not set.  Should be expanded before use.")
   "Create a new empty worklog."
   (interactive)
   (let* ((id (worklog--new-id)))
-    (worklog-open id)
+    (worklog-open id t)
     (worklog--add-to-board id "todo")))
 
 (defun worklog-dashboard-p ()
