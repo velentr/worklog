@@ -160,11 +160,12 @@ environment is not set.  Should be expanded before use.")
 (defun worklog-open (&optional id)
   "Open the worklog for ID, creating it if it does not exist."
   (interactive)
-  (let* ((real-id
-          (cond (id id)
-                (t (worklog--read-id))))
-         (orgfile (worklog--storage-path real-id)))
-    (find-file orgfile)))
+  (let ((real-id
+         (if id id
+           (worklog--read-id))))
+    (if (worklog-p real-id)
+        (find-file (worklog--storage-path real-id))
+      (message "invalid board: %s" id))))
 
 (defun worklog--add-to-board (id board)
   "Add worklog ID to kanban BOARD."
