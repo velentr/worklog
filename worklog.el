@@ -48,6 +48,10 @@
 Respects the XDG_DATA_HOME variable, defaulting to ~/.local/worklog if the
 environment is not set.  Should be expanded before use.")
 
+(defvar worklog-boards
+  '("todo" "doing" "done")
+  "The set of all valid boards.")
+
 (defun worklog--path (name)
   "Get the absolute path to the NAME component of worklog storage."
   (expand-file-name
@@ -175,9 +179,7 @@ environment is not set.  Should be expanded before use.")
   (let ((existing-link
          (locate-file
           (concat id ".org")
-          (seq-map
-           'worklog--board-path
-           '("todo" "doing" "done"))
+          (seq-map 'worklog--board-path worklog-boards)
           nil
           ;; double-check this is a symlink so we don't delete the data file
           'file-symlink-p)))
@@ -186,11 +188,7 @@ environment is not set.  Should be expanded before use.")
 
 (defun worklog-move-to-board (board &optional id)
   "Move worklog ID to the kanban BOARD."
-  (interactive
-   (list
-    (completing-read
-     "board: "
-     '("todo" "doing" "done"))))
+  (interactive (list (completing-read "board: " worklog-boards)))
   (if (worklog-board-p board)
       (let ((real-id (if id id
                        (worklog--read-id))))
@@ -207,7 +205,7 @@ environment is not set.  Should be expanded before use.")
 
 (defun worklog-board-p (board)
   "Test if BOARD is a valid kanban board."
-  (seq-contains-p '("todo" "doing" "done") board))
+  (seq-contains-p worklog-boards board))
 
 (defun worklog-new ()
   "Create a new empty worklog."
