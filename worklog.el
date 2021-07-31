@@ -71,16 +71,6 @@ environment is not set.  Should be expanded before use.")
     (make-directory path t)
     path))
 
-(defun worklog--tags-path ()
-  "Get the absolute path to the storage directory for tags."
-  (worklog--path "tags"))
-
-(defun worklog--tag-path (tag)
-  "Get the absolute path to the storage directory for TAG."
-  (concat
-   (file-name-as-directory (worklog--tags-path))
-   tag))
-
 (defun worklog--list (board)
   "List all worklogs on the given kanban BOARD."
   (let ((board-dir (worklog--board-path board)))
@@ -111,6 +101,21 @@ environment is not set.  Should be expanded before use.")
   (let ((path (worklog--storage-path id)))
     (with-current-buffer (find-file-noselect path)
       (cadr (car (org-collect-keywords '("TITLE")))))))
+
+(defun worklog--get-tags (id)
+  "Get the tags of worklog ID."
+  (let ((path (worklog--storage-path id)))
+    (if (worklog-p id)
+        (with-current-buffer (find-file-noselect path)
+          (flatten-tree
+           (seq-map
+            'split-string
+            (cdr (car (org-collect-keywords '("TAGS")))))))
+      (message "invalid worklog: %s" id))))
+
+(defun worklog--has-tag (id tag)
+  "Check if worklog ID has TAG."
+  (seq-contains-p (worklog--get-tags id) tag))
 
 (defun worklog--insert-summary (id)
   "Insert the summary for worklog ID into the current buffer."
