@@ -52,6 +52,9 @@ environment is not set.  Should be expanded before use.")
   '("todo" "doing" "done")
   "The set of all valid boards.")
 
+(defvar worklog-tag-filter nil
+  "Tag to use as a filter when opening the dashboard.")
+
 (defun worklog--path (name)
   "Get the absolute path to the NAME component of worklog storage."
   (expand-file-name
@@ -73,15 +76,21 @@ environment is not set.  Should be expanded before use.")
 
 (defun worklog--list (board)
   "List all worklogs on the given kanban BOARD."
-  (let ((board-dir (worklog--board-path board)))
-    (seq-map
-     (lambda (filename)
-       ;; trim off the .org suffix
-       (substring filename 0 -4))
-     (seq-filter
-      (lambda (filename)
-        (string-suffix-p ".org" filename))
-      (directory-files board-dir)))))
+  (let ((all-worklogs
+         (seq-map
+          (lambda (filename)
+            ;; trim off the .org suffix
+            (substring filename 0 -4))
+          (seq-filter
+           (lambda (filename)
+             (string-suffix-p ".org" filename))
+           (directory-files (worklog--board-path board))))))
+    ;; if there is an active tag filter, apply it here
+    (if worklog-tag-filter
+        (seq-filter
+         (lambda (id) (worklog--has-tag id worklog-tag-filter))
+         all-worklogs)
+      all-worklogs)))
 
 (defvar worklog-mode-font-lock-defaults
   '((("^* todo$" . font-lock-function-name-face)
@@ -145,6 +154,14 @@ environment is not set.  Should be expanded before use.")
     (switch-to-buffer buffer))
   (worklog-refresh-dashboard)
   (worklog-mode))
+
+(defun worklog-dashboard-for-tag (tag)
+  "Open the worklog dashboard, filtering to only worklogs with TAG."
+  (interactive "stag: ")
+  (if (equal tag "")
+      (setq worklog-tag-filter nil)
+    (setq worklog-tag-filter tag))
+  (worklog-dashboard))
 
 (defun worklog--new-id ()
   "Get a new pseudo-unique id for a worklog."
