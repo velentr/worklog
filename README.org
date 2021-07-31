@@ -1,0 +1,21 @@
+#+title: worklogs: track work across projects
+#+author: Brian Kubisiak
+
+If you're like me, you have a large number of open projects that
+you're working on (that are often unlikely to ever reach completion)
+to satisfy your curiosity or scratch some itch. I find that some of
+these projects will get backlogged for months at a time; when I come
+back to them, I'll often be unsure where I left off or what I need to
+do next.
+
+Worklogs are a way of tracking which projects are active and what work
+you've already completed or have left to do. A single worklog is just
+an org file that contains a summary of the project along with a
+description of work that's been completed or scheduled. Worklogs are
+summarized in a dashboard that groups them into the usual kanban
+boards (todo, doing, done) to track which projects are "active" and
+which are backlogged.
+
+The project contains emacs code for creating and managing worklogs to
+manage your projects and keep you focused on driving projects to
+completion.
